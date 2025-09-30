@@ -1,14 +1,18 @@
+import { Authenticator } from "@aws-amplify/ui-react";
+import { Amplify } from "aws-amplify";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import outputs from "../amplify_outputs.json";
 import App from "./App.tsx";
 import "./index.css";
-import { Amplify } from "aws-amplify";
-import outputs from "../amplify_outputs.json";
 
 Amplify.configure(outputs);
 
+// biome-ignore lint/style/noNonNullAssertion: root element is guaranteed to exist
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
-		<App />
+		<Authenticator>
+			<App />
+		</Authenticator>
 	</React.StrictMode>,
 );
