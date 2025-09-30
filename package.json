@@ -11,7 +11,7 @@
 		"check": "biome check --write ./src"
 	},
 	"dependencies": {
-		"@aws-amplify/ui-react": "^6.5.5",
+		"@aws-amplify/ui-react": "^6.13.0",
 		"@biomejs/biome": "^2.2.4",
 		"aws-amplify": "^6.6.6",
 		"react": "^18.2.0",
