@@ -8,4 +8,9 @@ export const auth = defineAuth({
 	loginWith: {
 		phone: true,
 	},
+	userAttributes: {
+		phoneNumber: {
+			required: true,
+		},
+	},
 });
