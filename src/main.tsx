@@ -16,6 +16,13 @@ import outputs from "../amplify_outputs.json";
 import App from "./App.tsx";
 import "./index.css";
 import "@aws-amplify/ui-react/styles.css";
+import {
+	confirmSignIn,
+	type SignInInput,
+	type SignUpInput,
+	signIn,
+	signUp,
+} from "aws-amplify/auth";
 
 Amplify.configure(outputs);
 
@@ -48,18 +55,26 @@ const components = {
 	SignIn: {
 		Header() {
 			const { tokens } = useTheme();
+			console.log("SignIn Header is being called!");
 
 			return (
 				<Heading
 					padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
 					level={3}
 				>
-					Sign in to your account
+					🔴 SIGNIN FORM - Sign in to your account
 				</Heading>
 			);
 		},
 		FormFields() {
-			return <PhoneNumberField label="Phone Number" defaultDialCode="+34" />;
+			console.log("SignIn FormFields is being called!");
+			return (
+				<PhoneNumberField
+					name="username"
+					label="Phone Number"
+					defaultDialCode="+1"
+				/>
+			);
 		},
 		Footer() {
 			const { toSignUp } = useAuthenticator();
@@ -82,18 +97,26 @@ const components = {
 	SignUp: {
 		Header() {
 			const { tokens } = useTheme();
+			console.log("SignUp Header is being called!");
 
 			return (
 				<Heading
 					padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
 					level={3}
 				>
-					Create a new account
+					🔵 SIGNUP FORM - Create a new account
 				</Heading>
 			);
 		},
 		FormFields() {
-			return <PhoneNumberField label="Phone Number" defaultDialCode="+34" />;
+			console.log("SignUp FormFields is being called!");
+			return (
+				<PhoneNumberField
+					name="username"
+					label="Phone Number"
+					defaultDialCode="+1"
+				/>
+			);
 		},
 		Footer() {
 			const { toSignIn } = useAuthenticator();
@@ -146,28 +169,71 @@ const components = {
 	},
 };
 
-const formFields = {
-	signIn: {
-		username: {
-			dialCode: "+34",
-		},
+const services = {
+	async handleSignUp(_input: SignUpInput) {
+		// console.log("handleSignUp is being called! Input: ", input);
+		// const { username } = input;
+		// const result = await signUp({
+		// 	username: username, // This will be the phone number from the form
+		// 	options: {
+		// 		userAttributes: {
+		// 			phone_number: username, // Use the same phone number as username
+		// 		},
+		// 	},
+		// });
+		console.log("Testing with dummy data");
+		const result = await signUp({
+			username: "+16723368618",
+			options: {
+				userAttributes: {
+					phone_number: "+16723368618",
+				},
+			},
+		});
+
+		if (result.nextStep.signUpStep === "DONE") {
+			console.log(`SignUp Complete`);
+		}
+
+		if (result.nextStep.signUpStep === "CONFIRM_SIGN_UP") {
+			console.log(
+				`Code Delivery Medium: ${result.nextStep.codeDeliveryDetails.deliveryMedium}`,
+			);
+			console.log(
+				`Code Delivery Destination: ${result.nextStep.codeDeliveryDetails.destination}`,
+			);
+		}
+
+		return result;
 	},
-	signUp: {
-		phone_number: {
-			dialCode: "+34",
-		},
+	async handleSignIn(input: SignInInput) {
+		const { username } = input;
+		const result = await signIn({
+			username,
+			options: {
+				authFlowType: "USER_AUTH",
+				preferredChallenge: "SMS_OTP",
+			},
+		});
+		if (result.nextStep.signInStep === "CONFIRM_SIGN_IN_WITH_SMS_CODE") {
+			// prompt user for otp code delivered via SMS
+			const { nextStep: confirmSignInNextStep } = await confirmSignIn({
+				challengeResponse: "123456",
+			});
+
+			if (confirmSignInNextStep.signInStep === "DONE") {
+				console.log("Sign in successful!");
+			}
+		}
+
+		return result;
 	},
 };
 
 // biome-ignore lint/style/noNonNullAssertion: root element is guaranteed to exist
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
-		<Authenticator
-			loginMechanisms={["phone_number"]}
-			initialState="signUp"
-			formFields={formFields}
-			components={components}
-		>
+		<Authenticator components={components} services={services}>
 			<App />
 		</Authenticator>
 	</React.StrictMode>,
