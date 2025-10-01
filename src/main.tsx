@@ -5,6 +5,7 @@ import ReactDOM from "react-dom/client";
 import outputs from "../amplify_outputs.json";
 import App from "./App.tsx";
 import "./index.css";
+import "@aws-amplify/ui-react/styles.css";
 
 Amplify.configure(outputs);
 
