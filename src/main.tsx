@@ -70,9 +70,15 @@ const components = {
 			console.log("SignIn FormFields is being called!");
 			return (
 				<PhoneNumberField
+					autoComplete="username"
 					name="username"
 					label="Phone Number"
 					defaultDialCode="+1"
+					dialCodeName="dial_code"
+					dialCodeLabel="Dial Code"
+					onDialCodeChange={(e) =>
+						alert(`Dial Code changed to: ${e.target.value}`)
+					}
 				/>
 			);
 		},
@@ -112,10 +118,21 @@ const components = {
 			console.log("SignUp FormFields is being called!");
 			return (
 				<PhoneNumberField
-					name="username"
+					autoComplete="phone"
+					id={"phone_number"}
+					name="phone_number"
 					label="Phone Number"
 					defaultDialCode="+1"
+					dialCodeName="dial_code"
+					dialCodeLabel="Dial Code"
+					onDialCodeChange={(e) =>
+						alert(`Dial Code changed to: ${e.target.value}`)
+					}
 				/>
+				// <>
+				// 	<Input name="dial_code" id={"dial_code"} type="tel" />
+				// 	<Input name="phone_number" id={"phone_number"} type="tel" />
+				// </>
 			);
 		},
 		Footer() {
@@ -170,26 +187,21 @@ const components = {
 };
 
 const services = {
-	async handleSignUp(_input: SignUpInput) {
-		// console.log("handleSignUp is being called! Input: ", input);
-		// const { username } = input;
-		// const result = await signUp({
-		// 	username: username, // This will be the phone number from the form
-		// 	options: {
-		// 		userAttributes: {
-		// 			phone_number: username, // Use the same phone number as username
-		// 		},
-		// 	},
-		// });
-		console.log("Testing with dummy data");
+	async handleSignUp(input: SignUpInput) {
+		console.log("handleSignUp is being called! Input: ", input);
+		console.log("Input.username: ", input.username);
+		console.log("Input.password: ", input.password);
+		console.log("Input.options: ", input.options);
+		const { username } = input;
 		const result = await signUp({
-			username: "+16723368618",
+			username: username, // This will be the phone number from the form
 			options: {
 				userAttributes: {
-					phone_number: "+16723368618",
+					phone_number: username, // Use the same phone number as username
 				},
 			},
 		});
+		console.log("handleSignUp Result: ", result);
 
 		if (result.nextStep.signUpStep === "DONE") {
 			console.log(`SignUp Complete`);
@@ -233,7 +245,11 @@ const services = {
 // biome-ignore lint/style/noNonNullAssertion: root element is guaranteed to exist
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
-		<Authenticator components={components} services={services}>
+		<Authenticator
+			components={components}
+			services={services}
+			loginMechanisms={["phone_number"]}
+		>
 			<App />
 		</Authenticator>
 	</React.StrictMode>,
